@@ -9,6 +9,10 @@
     "okf": "tsx agent/src/cli.ts",
     "crawl": "tsx agent/src/cli.ts crawl",
     "validate": "tsx agent/src/cli.ts validate",
+    "build:catalog": "tsx agent/src/build-catalog.ts",
+    "build:worker": "npm run build:catalog && wrangler deploy --dry-run --outdir dist/worker-bundle",
+    "build:pages": "tsx agent/src/build-pages.ts",
+    "dev:worker": "npm run build:catalog && wrangler dev",
     "test": "tsx --test agent/src/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
@@ -25,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^24.5.2",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^4.145.0"
   }
 }

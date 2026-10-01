@@ -77,7 +77,7 @@ test("serves only the fixed GUI assets and rejects unknown routes", async () => 
     assert.equal(page.status, 200);
     assert.match(page.headers["content-type"]?.toString() ?? "", /text\/html/);
     assert.match(page.body, /InfoMagnus/);
-    for (const asset of ["/app.js", "/theme.js", "/vendor/marked.js", "/vendor/purify.es.mjs", "/styles.css"]) {
+    for (const asset of ["/config.js", "/app.js", "/theme.js", "/vendor/marked.js", "/vendor/purify.es.mjs", "/styles.css"]) {
       assert.equal((await request(origin, asset)).status, 200);
     }
     assert.match((await request(origin, "/styles.css")).body, /prefers-reduced-motion/);

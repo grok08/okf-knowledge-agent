@@ -1,5 +1,5 @@
-import { marked } from "/vendor/marked.js";
-import DOMPurify from "/vendor/purify.es.mjs";
+import { marked } from "./vendor/marked.js";
+import DOMPurify from "./vendor/purify.es.mjs";
 
 /** @typedef {'light' | 'dark'} Theme */
 /** @typedef {{kind: 'pending', id: string, question: string} | {kind: 'answered', id: string, question: string, run: object} | {kind: 'failed', id: string, question: string, message: string}} Turn */
@@ -194,7 +194,7 @@ async function submitQuestion(rawQuestion) {
   questionField.value = "";
   render();
   try {
-    const response = await fetch("/api/ask", {
+    const response = await fetch(`${window.okfApiBase ?? ""}/api/ask`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ question }),

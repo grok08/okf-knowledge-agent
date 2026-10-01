@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "infomagnus-okf-agent-api",
+  "main": "agent/src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "PAGES_ORIGIN": "https://grok08.github.io",
+    "GROQ_MODEL": "openai/gpt-oss-120b"
+  },
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "120261001",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
+  "assets": {
+    "directory": "./dist/worker-assets",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  }
+}

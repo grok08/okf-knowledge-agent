@@ -50,6 +50,34 @@ npm run okf -- ask "Which services are related to application modernization?"
 
 The answer command prints tool calls, concepts discovered and read, evidence-backed relationships followed, sources, unverified citation URLs, the answer, latency, and token counts when Groq returns them. If Groq answers without using a knowledge tool, the agent declines to answer from the bundle.
 
+## Deploy the browser app
+
+The local app runs its GUI and `/api/ask` endpoint in Node. The deployed site uses GitHub Pages for the browser files and a Cloudflare Worker for `/api/ask`. The Worker reads the OKF catalog generated from `okf/` and keeps `GROQ_API_KEY` in a Cloudflare secret.
+
+### Configure Cloudflare
+
+1. Create a Cloudflare API token scoped to deploy Workers in the account that will host this app.
+2. Add the token to the repository's Actions secrets as `CLOUDFLARE_API_TOKEN`.
+3. Add the Cloudflare account ID as the Actions secret `CLOUDFLARE_ACCOUNT_ID`.
+
+### Deploy the Worker
+
+Run the `Deploy Worker` workflow from the Actions tab, or push a change under `agent/src/worker.ts`, `agent/src/core-agent.ts`, `agent/src/catalog.ts`, `agent/prompts/`, `okf/`, or `wrangler.jsonc` to `master`. The Worker workflow builds the catalog and deploys the API.
+
+After the first deploy creates the Worker, run `npx wrangler login` and `npx wrangler secret put GROQ_API_KEY`. Enter the Groq key at Wrangler's prompt. You can also add it under the Worker settings in Cloudflare. Never add this key to GitHub Actions or the Pages build.
+
+The first successful deployment creates the Worker URL. Add its HTTPS origin, without a path or trailing route, as the repository Actions variable `PUBLIC_API_BASE`. For example, use `https://infomagnus-okf-agent-api.<your-workers-subdomain>.workers.dev` with your actual Workers subdomain.
+
+### Publish GitHub Pages
+
+Set the repository's Pages source to **GitHub Actions**. Run the `Deploy Pages` workflow from the Actions tab or push a change under `agent/web/` to `master`. The workflow requires `PUBLIC_API_BASE` and fails if it is empty. It publishes the site at `https://grok08.github.io/okf-knowledge-agent/`.
+
+The Worker accepts requests from `https://grok08.github.io` and applies a 10-request-per-minute per-IP limit. Confirm that the rate-limit `namespace_id` in `wrangler.jsonc` is unused in your Cloudflare account before the first deploy. Reuse that value for later deploys.
+
+Cloudflare applies each rate-limit counter per edge location and updates counters asynchronously. This limit reduces ordinary bursts but is not a strict spend cap. Users behind the same proxy can share an IP limit. CORS restricts browser origins but does not authenticate callers, so the public endpoint can still receive direct requests. Review usage and Groq spend.
+
+Pull requests run tests, typecheck, validation, and both build checks. `npm run build:catalog`, `npm run build:pages`, and `npm run build:worker` run those builds locally. Set `PUBLIC_API_BASE` only when you need the Pages artifact to call a deployed Worker.
+
 ## Validate and test
 
 ```powershell

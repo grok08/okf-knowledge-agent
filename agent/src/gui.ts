@@ -10,6 +10,7 @@ const questionSchema = z.object({ question: z.string().trim().min(1).max(4000) }
 const hostSchema = z.string().regex(/^(?:127\.0\.0\.1|localhost)(?::\d{1,5})?$/);
 const assetPaths = {
   "/": ["../web/index.html", "text/html; charset=utf-8"],
+  "/config.js": ["../web/config.js", "text/javascript; charset=utf-8"],
   "/app.js": ["../web/app.js", "text/javascript; charset=utf-8"],
   "/theme.js": ["../web/theme.js", "text/javascript; charset=utf-8"],
   "/vendor/marked.js": ["../../node_modules/marked/lib/marked.esm.js", "text/javascript; charset=utf-8"],
