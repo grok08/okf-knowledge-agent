@@ -40,12 +40,6 @@ This starts the local browser chat at `http://127.0.0.1:4317` and opens it in yo
 
 To choose a port, run `npm run chat -- --port 4321`. To disable automatic browser launch, set `BROWSER=none`.
 
-The terminal chat is still available explicitly:
-
-```powershell
-npm run okf -- tui
-```
-
 One-off commands are also available:
 
 ```powershell

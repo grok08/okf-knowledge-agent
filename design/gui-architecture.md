@@ -17,7 +17,7 @@ The server owns the `OkfBundle`, calls `answerQuestion`, and returns its `AgentR
 - `agent/web/theme.js` applies a saved or system theme before the page paints.
 - `agent/web/app.js` owns chat state, fetch requests, DOM updates, and theme changes.
 - `agent/web/styles.css` owns layout, focus states, and light and dark color tokens.
-- `agent/src/cli.ts` makes the GUI the default chat command and preserves `tui` as an explicit terminal command.
+- `agent/src/cli.ts` makes the GUI the default chat command and retains separate non-interactive knowledge-base commands.
 
 ## Design choice
 

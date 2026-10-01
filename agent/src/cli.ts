@@ -8,7 +8,6 @@ import { crawlSite } from "./crawler.js";
 import { runEvaluation } from "./evaluation.js";
 import { startGui } from "./gui.js";
 import { parseInventory } from "./types.js";
-import { runTui } from "./tui.js";
 
 function option(args: string[], name: string): string | undefined {
   const index = args.indexOf(name);
@@ -65,10 +64,6 @@ async function main(): Promise<void> {
     process.once("SIGTERM", close);
     return;
   }
-  if (command === "tui") {
-    await runTui(bundle);
-    return;
-  }
   if (command === "validate") {
     const issues = await bundle.validate();
     printIssues(issues);
@@ -111,7 +106,7 @@ async function main(): Promise<void> {
     console.log(`Evaluation complete. Recorded ${records.length} answers in evaluation/results/okf-results.json.`);
     return;
   }
-  console.log("Commands: chat, tui, crawl, convert, validate, list, search, ask, eval");
+  console.log("Commands: chat, crawl, convert, validate, list, search, ask, eval");
 }
 
 main().catch((error: unknown) => {

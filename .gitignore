@@ -3,3 +3,4 @@ node_modules/
 dist/
 .okf-work/
 evaluation/results/*.json
+.scratch

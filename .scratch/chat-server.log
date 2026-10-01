@@ -1,5 +1,0 @@
-
-> infomagnus-okf@0.1.0 start
-> tsx agent/src/cli.ts chat
-
-InfoMagnus OKF Chat is running at http://127.0.0.1:4317
