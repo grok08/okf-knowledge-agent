@@ -84,7 +84,13 @@ function loadWorkerData(environment: WorkerEnvironment, requestUrl: string): Pro
     environment.ASSETS.fetch(new URL("/knowledge-catalog.json", requestUrl)),
     environment.ASSETS.fetch(new URL("/system-prompt.md", requestUrl)),
   ]).then(async ([catalogResponse, promptResponse]) => {
-    if (!catalogResponse.ok || !promptResponse.ok) throw new Error("Worker data could not be loaded.");
+    if (!catalogResponse.ok || !promptResponse.ok) {
+      console.error("Worker data assets returned unsuccessful responses", {
+        catalogStatus: catalogResponse.status,
+        promptStatus: promptResponse.status,
+      });
+      throw new Error("Worker data could not be loaded.");
+    }
     const input: unknown = await catalogResponse.json();
     return { catalog: parseKnowledgeCatalog(input), systemPrompt: await promptResponse.text() };
   });
@@ -105,26 +111,50 @@ async function completeWithGroq(
   environment: WorkerEnvironment,
   fetcher: typeof fetch,
 ): Promise<ModelTurn> {
-  if (!environment.GROQ_API_KEY) throw new Error("Groq API key is unavailable.");
-  const response = await fetcher("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: { authorization: `Bearer ${environment.GROQ_API_KEY}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model: environment.GROQ_MODEL ?? "openai/gpt-oss-120b",
-      messages,
-      tools: tools.map((tool) => ({
-        ...tool,
-        function: { ...tool.function, parameters: { ...tool.function.parameters, additionalProperties: false } },
-      })),
-      tool_choice: "auto",
-      temperature: 0,
-      include_reasoning: false,
-      reasoning_effort: "low",
-    }),
-  });
-  if (!response.ok) throw new Error("Groq completion failed.");
-  const input: unknown = await response.json();
-  const result = groqResponseSchema.parse(input);
+  if (!environment.GROQ_API_KEY) {
+    console.error("GROQ_API_KEY is not bound in the Worker.");
+    throw new Error("Groq API key is unavailable.");
+  }
+  let response: Response;
+  try {
+    response = await fetcher("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { authorization: `Bearer ${environment.GROQ_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        model: environment.GROQ_MODEL ?? "openai/gpt-oss-120b",
+        messages,
+        tools: tools.map((tool) => ({
+          ...tool,
+          function: { ...tool.function, parameters: { ...tool.function.parameters, additionalProperties: false } },
+        })),
+        tool_choice: "auto",
+        temperature: 0,
+        include_reasoning: false,
+        reasoning_effort: "low",
+      }),
+    });
+  } catch (error) {
+    console.error("Groq request failed before receiving a response", error instanceof Error ? error.name : "UnknownError");
+    throw new Error("Groq completion failed.");
+  }
+  if (!response.ok) {
+    console.error("Groq API returned an unsuccessful status", response.status);
+    throw new Error("Groq completion failed.");
+  }
+  let input: unknown;
+  try {
+    input = await response.json();
+  } catch (error) {
+    console.error("Groq API returned invalid JSON", error instanceof Error ? error.name : "UnknownError");
+    throw new Error("Groq completion failed.");
+  }
+  let result: z.infer<typeof groqResponseSchema>;
+  try {
+    result = groqResponseSchema.parse(input);
+  } catch {
+    console.error("Groq API response did not match the expected schema.");
+    throw new Error("Groq completion failed.");
+  }
   const choice = result.choices[0];
   if (!choice) throw new Error("Groq returned no completion choice.");
   return {
@@ -201,16 +231,19 @@ export async function handleWorkerRequest(
   const parsed = questionSchema.safeParse(input);
   if (!parsed.success) return errorResponse(origin, 400, "Question must contain 1 to 4000 characters.");
 
+  let stage = "loading the knowledge catalog";
   try {
     const { catalog, systemPrompt } = await loadWorkerData(environment, request.url);
     const model = environment.GROQ_MODEL ?? "openai/gpt-oss-120b";
+    stage = "running the answer agent";
     const run = await runAgent({
       catalog,
       systemPrompt,
       completeTurn: (messages, tools) => completeWithGroq(messages, tools, environment, fetcher),
     }, parsed.data.question, { maxSteps: 6, model });
     return jsonResponse(origin, 200, { run });
-  } catch {
+  } catch (error) {
+    console.error("Worker answer generation failed while", stage, error instanceof Error ? error.name : "UnknownError");
     return errorResponse(origin, 500, "The answer could not be generated. Please try again.");
   }
 }
