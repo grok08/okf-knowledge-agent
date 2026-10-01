@@ -1,0 +1,31 @@
+[
+  {
+    "id": "service-app-modernization",
+    "question": "What does the AI-Powered Application Modernization service do?",
+    "expectedSources": [
+      "https://www.infomagnus.com/infomagnus-services/ai-powered-application-modernization"
+    ]
+  },
+  {
+    "id": "service-sonyx-relationship",
+    "question": "Which solution is linked from the AI-Powered Application Modernization service?",
+    "expectedSources": [
+      "https://www.infomagnus.com/infomagnus-services/ai-powered-application-modernization",
+      "https://www.infomagnus.com/infomagnus-solutions/application-modernization-with-sonyx"
+    ]
+  },
+  {
+    "id": "solution-sonyxx",
+    "question": "What does the SONYX solution support?",
+    "expectedSources": [
+      "https://www.infomagnus.com/infomagnus-solutions/application-modernization-with-sonyx"
+    ]
+  },
+  {
+    "id": "ai-data-service",
+    "question": "What does InfoMagnus say about its Data and AI services?",
+    "expectedSources": [
+      "https://www.infomagnus.com/infomagnus-services/data-and-ai-services"
+    ]
+  }
+]

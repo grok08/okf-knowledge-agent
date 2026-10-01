@@ -1,0 +1,30 @@
+{
+  "name": "infomagnus-okf",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx agent/src/cli.ts chat",
+    "chat": "tsx agent/src/cli.ts chat",
+    "okf": "tsx agent/src/cli.ts",
+    "crawl": "tsx agent/src/cli.ts crawl",
+    "validate": "tsx agent/src/cli.ts validate",
+    "test": "tsx --test agent/src/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2",
+    "dompurify": "^3.4.16",
+    "dotenv": "^16.6.1",
+    "gray-matter": "^4.0.3",
+    "groq-sdk": "^0.33.0",
+    "marked": "^17.0.6",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
